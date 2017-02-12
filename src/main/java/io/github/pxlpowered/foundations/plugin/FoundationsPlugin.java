@@ -26,10 +26,13 @@
 package io.github.pxlpowered.foundations.plugin;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
+import io.github.pxlpowered.foundations.core.message.internal.InternalMessages;
 import org.slf4j.Logger;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.plugin.PluginContainer;
 
 /**
  * The main class for Foundations plugin.
@@ -37,7 +40,18 @@ import org.spongepowered.api.plugin.Plugin;
 @Plugin(id = PluginInfo.ID)
 public final class FoundationsPlugin {
 
+    private final PluginContainer container;
+
+    @Inject private Injector injector;
     @Inject private Logger logger;
+
+    private InternalMessages internalMessages;
+
+    @Inject
+    private FoundationsPlugin(PluginContainer container, Injector injector) {
+        this.container = container;
+        this.injector = injector;
+    }
 
     /**
      * Pre Initialization tasks.
@@ -46,8 +60,34 @@ public final class FoundationsPlugin {
      */
     @Listener
     public void onPreInit(GamePreInitializationEvent event) {
-        // TODO make a internal message entry
-        logger.info("Starting" + PluginInfo.ID);
+        logger.info("Starting " + PluginInfo.ID);
+        try {
+            internalMessages = new InternalMessages(this);
+            getLogger().info(internalMessages.getLog("plugin.phase.enter"), event.getState());
+        } catch (Exception e) {
+            // TODO king: plugin states
+            e.printStackTrace();
+        }
+
+        getLogger().info(internalMessages.getLog("plugin.phase.exit"));
+    }
+
+    /**
+     * Gets the currently active {@link Logger} for the plugin.
+     *
+     * @return The logger.
+     */
+    public Logger getLogger() {
+        return logger;
+    }
+
+    /**
+     * Gets the {@link PluginContainer} for foundations plugin.
+     *
+     * @return The plugin container.
+     */
+    public PluginContainer getContainer() {
+        return container;
     }
 
 }
