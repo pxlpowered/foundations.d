@@ -60,7 +60,7 @@ public final class InternalMessages {
      */
     public InternalMessages(FoundationsPlugin plugin) throws Exception {
         logger = plugin.getLogger();
-        Optional<Asset> assetOptional = plugin.getContainer().getAsset("messages/internal.properties");
+        Optional<Asset> assetOptional = plugin.getContainer().getAsset("internal-messages.properties");
 
         if (assetOptional.isPresent()) {
             node.mergeValuesFrom(HoconConfigurationLoader.builder().setURL(assetOptional.get().getUrl()).build().load());
