@@ -27,12 +27,12 @@ package io.github.pxlpowered.foundations.core.message.internal;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.github.pxlpowered.foundations.plugin.FoundationsPlugin;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.SimpleConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import org.slf4j.Logger;
 import org.spongepowered.api.asset.Asset;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 
 import java.util.Locale;
@@ -58,9 +58,9 @@ public final class InternalMessages {
      * @param plugin The plugin instance.
      * @throws Exception Thrown if the asset was not found or was not able to be loaded.
      */
-    public InternalMessages(FoundationsPlugin plugin) throws Exception {
+    public InternalMessages(PluginContainer plugin) throws Exception {
         logger = plugin.getLogger();
-        Optional<Asset> assetOptional = plugin.getContainer().getAsset("internal-messages.properties");
+        Optional<Asset> assetOptional = plugin.getAsset("internal-messages.properties");
 
         if (assetOptional.isPresent()) {
             node.mergeValuesFrom(HoconConfigurationLoader.builder().setURL(assetOptional.get().getUrl()).build().load());

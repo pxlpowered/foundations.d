@@ -62,7 +62,7 @@ public final class FoundationsPlugin {
     public void onPreInit(GamePreInitializationEvent event) {
         logger.info("Starting " + PluginInfo.ID);
         try {
-            internalMessages = new InternalMessages(this);
+            internalMessages = new InternalMessages(getContainer());
             getLogger().info(internalMessages.getLog("plugin.phase.enter"), event.getState());
         } catch (Exception e) {
             // TODO king: plugin states
