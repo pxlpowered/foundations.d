@@ -45,10 +45,12 @@ public final class FoundationsPlugin {
     private final PluginContainer container;
 
     @SuppressWarnings("NullableProblems")
-    @Inject private Injector injector;
+    @Inject
+    private Injector injector;
 
     @SuppressWarnings("NullableProblems")
-    @Inject private Logger logger;
+    @Inject
+    private Logger logger;
 
     @Nullable private InternalMessages internalMessages;
 
