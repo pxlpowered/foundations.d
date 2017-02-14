@@ -34,6 +34,8 @@ import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 
+import javax.annotation.Nullable;
+
 /**
  * The main class for Foundations plugin.
  */
@@ -42,15 +44,19 @@ public final class FoundationsPlugin {
 
     private final PluginContainer container;
 
-    @Inject private Injector injector;
-    @Inject private Logger logger;
+    @SuppressWarnings("NullableProblems")
+    @Inject
+    private Injector injector;
 
-    private InternalMessages internalMessages;
+    @SuppressWarnings("NullableProblems")
+    @Inject
+    private Logger logger;
+
+    @Nullable private InternalMessages internalMessages;
 
     @Inject
-    private FoundationsPlugin(PluginContainer container, Injector injector) {
+    private FoundationsPlugin(PluginContainer container) {
         this.container = container;
-        this.injector = injector;
     }
 
     /**
@@ -61,15 +67,22 @@ public final class FoundationsPlugin {
     @Listener
     public void onPreInit(GamePreInitializationEvent event) {
         logger.info("Starting " + PluginInfo.ID);
+
         try {
+            getLogger().debug("Attempting to load internal messages.");
             internalMessages = new InternalMessages(getContainer());
+            PluginStatus.setInternalMessages(true);
+            getLogger().debug("Internal messages loaded.");
+
             getLogger().info(internalMessages.getLog("plugin.phase.enter"), event.getState());
         } catch (Exception e) {
-            // TODO king: plugin states
-            e.printStackTrace();
+            PluginStatus.setErrored(true);
+            PluginStatus.checkForError(this, e);
         }
 
-        getLogger().info(internalMessages.getLog("plugin.phase.exit"));
+        if (!PluginStatus.isErrored()) {
+            getLogger().info(internalMessages.getLog("plugin.phase.exit"), event.getState());
+        }
     }
 
     /**
