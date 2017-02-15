@@ -52,7 +52,8 @@ public final class FoundationsPlugin {
     @Inject
     private Logger logger;
 
-    @Nullable private InternalMessages internalMessages;
+    @Nullable
+    private InternalMessages internalMessages;
 
     @Inject
     private FoundationsPlugin(PluginContainer container) {
@@ -70,9 +71,30 @@ public final class FoundationsPlugin {
 
         try {
             getLogger().debug("Attempting to load internal messages.");
-            internalMessages = new InternalMessages(getContainer());
-            PluginStatus.setInternalMessages(true);
-            getLogger().debug("Internal messages loaded.");
+            final Throwable[] ex = new Throwable[0];
+
+            injector = injector.createChildInjector(binder -> binder.bind(InternalMessages.class).toProvider(() -> {
+                try {
+                    InternalMessages tmp = new InternalMessages(container);
+                    PluginStatus.setInternalMessages(true);
+                    return tmp;
+                } catch (Exception e1) {
+                    PluginStatus.setInternalMessages(false);
+                    PluginStatus.setErrored(true);
+                    ex[0] = e1;
+                    return null;
+                }
+            }));
+
+            if (PluginStatus.isErrored()) {
+                throw new RuntimeException(ex[0]);
+            }
+
+            internalMessages = injector.getProvider(InternalMessages.class).get();
+
+            // We already confirmed that internalMessages is not null
+            assert internalMessages != null;
+            getLogger().debug(internalMessages.getLog("internalmessages.load.success"));
 
             getLogger().info(internalMessages.getLog("plugin.phase.enter"), event.getState());
         } catch (Exception e) {

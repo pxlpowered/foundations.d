@@ -32,7 +32,6 @@ import javax.annotation.Nullable;
 /**
  * Handles the global plugin status.
  */
-// TODO make this a singleton?
 public final class PluginStatus {
 
     /**
@@ -66,7 +65,7 @@ public final class PluginStatus {
     private static final byte MAIN_CONFIGS = 0x2;
 
     // We use bits to save memory
-    private static long state = 0x0;
+    private static long state = 0x1;
     private static boolean errored = false;
 
     public static final char INTERNAL_MESSAGES_CODE = 'I';
@@ -154,6 +153,7 @@ public final class PluginStatus {
 
     private static void clearForError(FoundationsPlugin plugin) {
         // TODO actually do stuff here
+        // TODO clear InternalMessages guice provider
     }
 
 }
