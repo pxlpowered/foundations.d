@@ -27,13 +27,17 @@ package io.github.pxlpowered.foundations.core.message.internal;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.reflect.TypeToken;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.SimpleConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
 import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextStyles;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -46,12 +50,12 @@ import java.util.Optional;
  */
 public final class InternalMessages {
 
-    private static final String KEY_MISSING = "The key is missing";
+    private static final String KEY_MISSING = "The key %s is missing";
+    private static final String MALFORMED_TEXT = "The text for key %s is malformed";
 
     private final Logger logger;
     private final ConfigurationNode node = SimpleConfigurationNode.root();
 
-    // TODO king: introduce a specific exception for clarity
     /**
      * Constructs a new InternalMessages instance for plugin messages.
      *
@@ -67,7 +71,6 @@ public final class InternalMessages {
         } else {
             throw new RuntimeException("Internal Messages asset assets/foundations/messages/internal.properties is missing.");
         }
-
     }
 
     /**
@@ -77,7 +80,16 @@ public final class InternalMessages {
      * @return The log message.
      */
     public String getLog(String key) {
-        return getValue(key).orElse(KEY_MISSING);
+        checkNotNull(key, "key");
+
+        ConfigurationNode tmp = node.getNode((Object[]) key.split("\\."));
+
+        if (tmp.isVirtual()) {
+            //noinspection MalformedFormatString
+            return String.format(KEY_MISSING, key);
+        }
+
+        return tmp.getString();
     }
 
     /**
@@ -87,7 +99,16 @@ public final class InternalMessages {
      * @return The string message.
      */
     public String getPlain(String key) {
-        return getValue(key).orElse(KEY_MISSING);
+        checkNotNull(key, "key");
+
+        ConfigurationNode tmp = node.getNode((Object[]) key.split("\\."));
+
+        if (tmp.isVirtual()) {
+            //noinspection MalformedFormatString
+            return String.format(KEY_MISSING, key);
+        }
+
+        return tmp.getString();
     }
 
     /**
@@ -96,15 +117,22 @@ public final class InternalMessages {
      * @param key The key for the value.
      * @return The text message.
      */
-    public Text getText(String key) {
-        return Text.of(getValue(key).orElse(KEY_MISSING));
-    }
+    public Text getJsonText(String key) {
 
-    private Optional<String> getValue(String key) {
         checkNotNull(key, "key");
 
-        ConfigurationNode n = node.getNode((Object[]) key.split("\\."));
-        return !n.isVirtual() ? Optional.ofNullable(n.getString()) : Optional.empty();
+        ConfigurationNode tmp = node.getNode((Object[]) key.split("\\."));
+
+        if (tmp.isVirtual()) {
+            //noinspection MalformedFormatString
+            return Text.of(TextColors.RED, TextStyles.BOLD, String.format(KEY_MISSING, key));
+        }
+
+        try {
+            return tmp.getValue(TypeToken.of(Text.class));
+        } catch (ObjectMappingException e) {
+            return Text.of(TextColors.RED, TextStyles.BOLD, String.format(MALFORMED_TEXT, key));
+        }
     }
 
 }
