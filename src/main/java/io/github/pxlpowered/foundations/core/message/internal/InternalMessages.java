@@ -32,14 +32,18 @@ import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.SimpleConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
-import org.slf4j.Logger;
 import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.TextElement;
+import org.spongepowered.api.text.TextTemplate;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.text.serializer.TextParseException;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -53,7 +57,6 @@ public final class InternalMessages {
     private static final String KEY_MISSING = "The key %s is missing";
     private static final String MALFORMED_TEXT = "The text for key %s is malformed";
 
-    private final Logger logger;
     private final ConfigurationNode node = SimpleConfigurationNode.root();
 
     /**
@@ -63,7 +66,8 @@ public final class InternalMessages {
      * @throws Exception Thrown if the asset was not found or was not able to be loaded.
      */
     public InternalMessages(PluginContainer plugin) throws Exception {
-        logger = plugin.getLogger();
+        checkNotNull(plugin);
+
         Optional<Asset> assetOptional = plugin.getAsset("internal-messages.properties");
 
         if (assetOptional.isPresent()) {
@@ -85,7 +89,6 @@ public final class InternalMessages {
         ConfigurationNode tmp = node.getNode((Object[]) key.split("\\."));
 
         if (tmp.isVirtual()) {
-            //noinspection MalformedFormatString
             return String.format(KEY_MISSING, key);
         }
 
@@ -104,7 +107,6 @@ public final class InternalMessages {
         ConfigurationNode tmp = node.getNode((Object[]) key.split("\\."));
 
         if (tmp.isVirtual()) {
-            //noinspection MalformedFormatString
             return String.format(KEY_MISSING, key);
         }
 
@@ -112,13 +114,12 @@ public final class InternalMessages {
     }
 
     /**
-     * Gets a string value as a {@link Text} object.
+     * Gets a json string as a {@link Text} object.
      *
      * @param key The key for the value.
      * @return The text message.
      */
     public Text getJsonText(String key) {
-
         checkNotNull(key, "key");
 
         ConfigurationNode tmp = node.getNode((Object[]) key.split("\\."));
@@ -133,6 +134,57 @@ public final class InternalMessages {
         } catch (ObjectMappingException e) {
             return Text.of(TextColors.RED, TextStyles.BOLD, String.format(MALFORMED_TEXT, key));
         }
+    }
+
+    /**
+     * Gets a formatting code string as a {@link Text} object.
+     *
+     * @param key The key for the value.
+     * @return The text message.
+     */
+    public Text getFormatCodeText(String key) {
+        checkNotNull(key, "key");
+
+        ConfigurationNode tmp = node.getNode((Object[]) key.split("\\."));
+
+        if (tmp.isVirtual()) {
+            //noinspection MalformedFormatString
+            return Text.of(TextColors.RED, TextStyles.BOLD, String.format(KEY_MISSING, key));
+        }
+
+        try {
+            return TextSerializers.FORMATTING_CODE.deserialize(tmp.getString());
+        } catch (TextParseException e) {
+            return Text.of(TextColors.RED, TextStyles.BOLD, String.format(MALFORMED_TEXT, key));
+        }
+    }
+
+    /**
+     * Gets a text template json string as a {@link Text} object.
+     *
+     * @param key The key for the value.
+     * @param arguments The arguments for
+     * @return The text message.
+     */
+    public Text getTemplateText(String key, Map<String, TextElement> arguments) {
+        checkNotNull(key, "key");
+        checkNotNull(arguments, "arguments");
+
+        ConfigurationNode tmp = node.getNode((Object[]) key.split("\\."));
+
+        if (tmp.isVirtual()) {
+            return Text.of(TextColors.RED, TextStyles.BOLD, String.format(KEY_MISSING, key));
+        }
+
+        TextTemplate template;
+
+        try {
+            template = tmp.getValue(TypeToken.of(TextTemplate.class));
+        } catch (ObjectMappingException e) {
+            return Text.of(TextColors.RED, TextStyles.BOLD, String.format("The text template for key %s is malformed", key));
+        }
+
+        return template.apply(arguments).build();
     }
 
 }
