@@ -100,7 +100,7 @@ public final class PersistentConfigurationImpl extends AbstractConfiguration imp
     }
 
     /**
-     * The implementation for {@link PersistentConfiguration.Builder}.
+     * The implementation for {@link io.github.pxlpowered.foundations.api.configuration.PersistentConfiguration.Builder}.
      */
     public static final class BuilderImpl extends AbstractBuilder<PersistentConfiguration>
             implements PersistentConfiguration.Builder<PersistentConfiguration> {

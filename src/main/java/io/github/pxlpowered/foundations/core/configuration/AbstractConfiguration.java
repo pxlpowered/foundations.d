@@ -83,7 +83,7 @@ public abstract class AbstractConfiguration implements Configuration {
      *
      * @param <T> The type of configuration.
      */
-    static abstract class AbstractBuilder<T extends Configuration> implements Builder<T> {
+    abstract static class AbstractBuilder<T extends Configuration> implements Builder<T> {
 
         final InternalMessages internalMessages;
         final Set<URL> urls = new HashSet<>();
@@ -146,8 +146,8 @@ public abstract class AbstractConfiguration implements Configuration {
             return getThis();
         }
 
+        @SuppressWarnings("unchecked")
         private <R extends AbstractBuilder<T>> R getThis() {
-            //noinspection unchecked
             return (R)this;
         }
 

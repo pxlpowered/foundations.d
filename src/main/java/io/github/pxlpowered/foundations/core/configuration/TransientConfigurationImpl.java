@@ -64,10 +64,15 @@ public final class TransientConfigurationImpl extends AbstractConfiguration impl
     }
 
     /**
-     * The implementation for {@link TransientConfiguration.Builder}.
+     * The implementation for {@link io.github.pxlpowered.foundations.api.configuration.TransientConfiguration.Builder}.
      */
     public static final class BuilderImpl extends AbstractBuilder<TransientConfiguration> implements TransientConfiguration.Builder {
 
+        /**
+         * Constructs a new instance of {@link TransientConfigurationImpl}.
+         *
+         * @param internalMessages The internal messages instance.
+         */
         public BuilderImpl(InternalMessages internalMessages) {
             super(internalMessages);
         }
