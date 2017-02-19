@@ -124,7 +124,7 @@ public final class InternalMessages {
      * @param args The args for formatting.
      * @return The string message.
      */
-    public String getStringFormatted(String key, Object[] args) {
+    public String getStringFormatted(String key, Object... args) {
         checkNotNull(key, "key");
         checkNotNull(args, "args");
 
@@ -146,7 +146,7 @@ public final class InternalMessages {
      * @param args The args for formatting.
      * @return The string message.
      */
-    public String getTextFormatted(String key, Object[] args) {
+    public String getTextFormatted(String key, Object... args) {
         checkNotNull(key, "key");
         checkNotNull(args, "args");
 
