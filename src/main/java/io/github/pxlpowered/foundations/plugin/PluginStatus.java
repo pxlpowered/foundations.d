@@ -26,6 +26,7 @@
 package io.github.pxlpowered.foundations.plugin;
 
 import io.github.pxlpowered.foundations.core.message.internal.InternalMessages;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 
@@ -50,6 +51,21 @@ public final class PluginStatus {
     private static final byte INTERNAL_MESSAGES = 0x1;
 
     /**
+     * The global config is loaded.
+     *
+     * <p>The global config is the second thing to load, before the
+     * {@link Logger} wrappers.
+     *
+     * <p>Debug code: {@code G}.
+     *
+     * <p><b>NOTE: </b>A {@code byte} is used here. When doing bitwise
+     *     operations, cast to a long or shift bits to compensate.
+     *
+     * @see #INTERNAL_MESSAGES_CODE
+     */
+    private static final byte GLOBAL_CONFIG = 0x2;
+
+    /**
      * The main configs are loaded.
      *
      * <p>These configs are needed for any operation. Loads before FoMoLo
@@ -62,13 +78,14 @@ public final class PluginStatus {
      *
      * @see #MAIN_CONFIGS_CODE
      */
-    private static final byte MAIN_CONFIGS = 0x2;
+    private static final byte MAIN_CONFIGS = 0x8;
 
     // We use bits to save memory
     private static long state = 0x1;
     private static boolean errored = false;
 
     public static final char INTERNAL_MESSAGES_CODE = 'I';
+    public static final char GLOBAL_CONFIG_CODE = 'G';
     public static final char MAIN_CONFIGS_CODE = 'C';
 
     // Do not instantiate
@@ -109,6 +126,30 @@ public final class PluginStatus {
     }
 
     /**
+     * Sets the internal messages bit.
+     *
+     * @param internalMessages {@code true} for set, {@code false} for unset.
+     */
+    public static void setGlobalConfig(boolean internalMessages) {
+        if (isInternalMessages() && !internalMessages) {
+            state &= ~((long)GLOBAL_CONFIG);
+        }
+
+        if (!isInternalMessages() && internalMessages) {
+            state |= ((long)GLOBAL_CONFIG);
+        }
+    }
+
+    /**
+     * Gets if the internal messages bit is set or not.
+     *
+     * @return {@code true} is set, {@code false} otherwise.
+     */
+    public static boolean isGlobalConfig() {
+        return (getState() & ((long)GLOBAL_CONFIG)) != 0;
+    }
+
+    /**
      * Gets if the plugin is in an error state.
      *
      * @return {@code true} if plugin is errored, false otherwise.
@@ -144,7 +185,7 @@ public final class PluginStatus {
             plugin.getLogger().error(String.format(errorMes, PluginInfo.ID,
                     String.format(status,
                             PluginStatus.isInternalMessages() ? PluginStatus.INTERNAL_MESSAGES_CODE : '*',
-                            PluginStatus.isInternalMessages() ? PluginStatus.INTERNAL_MESSAGES_CODE : '*')),
+                            PluginStatus.isGlobalConfig() ? PluginStatus.GLOBAL_CONFIG_CODE : '*')),
                     throwable);
 
             clearForError(plugin);
