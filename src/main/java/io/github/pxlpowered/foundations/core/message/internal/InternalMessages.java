@@ -42,6 +42,8 @@ import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.text.serializer.TextParseException;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
+import java.text.MessageFormat;
+import java.util.Formatter;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -111,6 +113,50 @@ public final class InternalMessages {
         }
 
         return tmp.getString();
+    }
+
+    /**
+     * Gets a formatted string value.
+     *
+     * <p>Uses the {@link Formatter} for formatting, {@code String.format(String,Object[])}.
+     *
+     * @param key The key for the value.
+     * @param args The args for formatting.
+     * @return The string message.
+     */
+    public String getStringFormatted(String key, Object[] args) {
+        checkNotNull(key, "key");
+        checkNotNull(args, "args");
+
+        ConfigurationNode tmp = node.getNode((Object[]) key.split("\\."));
+
+        if (tmp.isVirtual()) {
+            return String.format(KEY_MISSING, key);
+        }
+
+        return String.format(tmp.getString(), args);
+    }
+
+    /**
+     * Gets a formatted string value.
+     *
+     * <p>Uses the {@link MessageFormat} for formatting, {@code MessageFormat.format(String,Object[])}.
+     *
+     * @param key The key for the value.
+     * @param args The args for formatting.
+     * @return The string message.
+     */
+    public String getTextFormatted(String key, Object[] args) {
+        checkNotNull(key, "key");
+        checkNotNull(args, "args");
+
+        ConfigurationNode tmp = node.getNode((Object[]) key.split("\\."));
+
+        if (tmp.isVirtual()) {
+            return String.format(KEY_MISSING, key);
+        }
+
+        return MessageFormat.format(tmp.getString(), args);
     }
 
     /**
