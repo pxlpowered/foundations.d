@@ -2,6 +2,7 @@ package io.github.pxlpowered.foundations.core.configuration;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.github.pxlpowered.foundations.api.configuration.Configuration;
 import io.github.pxlpowered.foundations.api.configuration.PersistentConfiguration;
 import io.github.pxlpowered.foundations.core.message.internal.InternalMessages;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -16,9 +17,10 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 /**
- *
+ * The implementation for {@link PersistentConfiguration}.
  */
 public final class PersistentConfigurationImpl extends AbstractConfiguration implements PersistentConfiguration {
 
@@ -62,7 +64,6 @@ public final class PersistentConfigurationImpl extends AbstractConfiguration imp
 
     @Override
     public void save() {
-        // TODO handle uuid
         if (!(loader == null)) {
             try {
                 loader.save(node);
@@ -73,11 +74,19 @@ public final class PersistentConfigurationImpl extends AbstractConfiguration imp
         }
     }
 
+    /**
+     * The implementation for {@link PersistentConfiguration.Builder}.
+     */
     public static final class BuilderImpl extends AbstractBuilder<PersistentConfiguration>
             implements PersistentConfiguration.Builder<PersistentConfiguration> {
 
         @Nullable private Path path;
 
+        /**
+         * Constructs a new instance of {@link BuilderImpl}.
+         *
+         * @param internalMessages The internal messages instance.
+         */
         public BuilderImpl(InternalMessages internalMessages) {
             super(internalMessages);
         }
@@ -95,6 +104,24 @@ public final class PersistentConfigurationImpl extends AbstractConfiguration imp
             checkNotNull(path, "path");
 
             this.path = path;
+            return this;
+        }
+
+        @OverridingMethodsMustInvokeSuper
+        @Override
+        public Configuration.Builder<PersistentConfiguration> from(PersistentConfiguration value) {
+            super.from(value);
+
+            path = ((PersistentConfigurationImpl)value).path;
+            return this;
+        }
+
+        @OverridingMethodsMustInvokeSuper
+        @Override
+        public Configuration.Builder<PersistentConfiguration> reset() {
+            super.reset();
+
+            path = null;
             return this;
         }
 

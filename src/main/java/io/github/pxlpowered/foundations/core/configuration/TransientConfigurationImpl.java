@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- *
+ * The implementation for {@link TransientConfiguration}.
  */
 public final class TransientConfigurationImpl extends AbstractConfiguration implements TransientConfiguration {
 
@@ -38,6 +38,9 @@ public final class TransientConfigurationImpl extends AbstractConfiguration impl
         logger.debug(internalMessages.getLog("configuration.load.success"), uuid);
     }
 
+    /**
+     * The implementation for {@link TransientConfiguration.Builder}.
+     */
     public static final class BuilderImpl extends AbstractBuilder<TransientConfiguration> implements TransientConfiguration.Builder {
 
         public BuilderImpl(InternalMessages internalMessages) {

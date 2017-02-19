@@ -19,20 +19,29 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 /**
- *
+ * Abstract implementation for {@link Configuration}s.
  */
 public abstract class AbstractConfiguration implements Configuration {
 
-    protected final InternalMessages internalMessages;
-    protected final Set<URL> urls = new HashSet<>();
-    protected final Logger logger;
-    protected final UUID uuid;
+    final InternalMessages internalMessages;
+    final Set<URL> urls = new HashSet<>();
+    final Logger logger;
+    final UUID uuid;
 
-    @Nullable protected CommentedConfigurationNode node;
+    @Nullable CommentedConfigurationNode node;
 
-    protected AbstractConfiguration(InternalMessages internalMessages, Set<URL> urls, Logger logger, UUID uuid) {
+    /**
+     * Constructs a new instance of a {@link AbstractConfiguration}.
+     *
+     * @param internalMessages The internal messages instance.
+     * @param urls The asset urls.
+     * @param logger The instance.
+     * @param uuid The unique id for the configuration.
+     */
+    AbstractConfiguration(InternalMessages internalMessages, Set<URL> urls, Logger logger, UUID uuid) {
         this.internalMessages = internalMessages;
         this.urls.addAll(urls);
         this.logger = logger;
@@ -44,12 +53,22 @@ public abstract class AbstractConfiguration implements Configuration {
         return Optional.ofNullable(node);
     }
 
-    protected static abstract class AbstractBuilder<T extends Configuration> implements Builder<T> {
+    /**
+     * Abstract implementation for {@link Configuration.Builder}.
+     *
+     * @param <T> The type of configuration.
+     */
+    static abstract class AbstractBuilder<T extends Configuration> implements Builder<T> {
 
-        protected final InternalMessages internalMessages;
-        protected final Set<URL> urls = new HashSet<>();
+        final InternalMessages internalMessages;
+        final Set<URL> urls = new HashSet<>();
 
-        protected AbstractBuilder(InternalMessages internalMessages) {
+        /**
+         * Constructs a new instance of {@link AbstractConfiguration.AbstractBuilder}.
+         *
+         * @param internalMessages The internal messages instance.
+         */
+        AbstractBuilder(InternalMessages internalMessages) {
             checkNotNull(internalMessages, "internalMessages");
 
             this.internalMessages = internalMessages;
@@ -86,7 +105,8 @@ public abstract class AbstractConfiguration implements Configuration {
         }
 
         @Override
-        public final Builder<T> from(T value) {
+        @OverridingMethodsMustInvokeSuper
+        public Builder<T> from(T value) {
             checkNotNull(value, "value");
 
             urls.clear();
@@ -95,8 +115,9 @@ public abstract class AbstractConfiguration implements Configuration {
         }
 
         @Override
-        public final Builder<T> reset() {
-
+        @OverridingMethodsMustInvokeSuper
+        public Builder<T> reset() {
+            urls.clear();
             return getThis();
         }
 
